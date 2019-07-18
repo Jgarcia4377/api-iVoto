@@ -8,14 +8,16 @@ function loginUser(req, res,done){
     const usuario = params.usuario
     const contrasena = params.contrasena
         Usuario.LoginUsuario({usuario,contrasena},(err,dataUsuario)=>{
-            const usu = usuario;
-            if(err) return res.status(500).send({status:false,message: 'Error en la petición'});
-            if(dataUsuario){res.status(201).json({message: 'Iniciando Sesión',dataUsuario});
-                }else{
-                    res.status(500).json({message: 'El usuario no se ha podido identificar'});
+            if(err) throw err;
+            res.send(JSON.stringify(dataUsuario))
+            // const usu = usuario;
+            // if(err) return res.status(500).send({status:false,message: 'Error en la petición'});
+            // if(dataUsuario){res.status(201).json({message: 'Iniciando Sesión',dataUsuario});
+            //     }else{
+            //         res.status(500).json({message: 'El usuario no se ha podido identificar'});
                     
-            }
-            console.log(usu) 
+            // }
+            // console.log(usu) 
            
                 })
               
@@ -93,6 +95,7 @@ function getUsuarios(req,res){
         // var UsuarioData={};
         // UsuarioData.cedula=req.body.cedula,
         // UsuarioData.nombres=req.body.nombres,
+        
         // UsuarioData.apellido_p=req.body.apellido_p,
         // UsuarioData.apellido_m=req.body.apellido_m,
         // UsuarioData.huella_dactilar=req.body.huella_dactilar,
