@@ -92,5 +92,25 @@ begin
 	If LENGTH(TRIM(NEW.tipo))>0 THEN
 		SET NEW.tipo=UPPER(NEW.tipo);
 	END IF;
+    
+	END //
+delimiter ;
+
+
+-- --------------------------------------------------------------------------------
+-- Guardar evento
+-- --------------------------------------------------------------------------------
+
+DROP TRIGGER IF EXISTS evento;
+delimiter //
+Create trigger evento Before insert On votacion For Each Row
+begin
+	If LENGTH(TRIM(NEW.descripcion))>0 THEN
+		SET NEW.descripcion=UPPER(NEW.descripcion);
+	END IF;
+    If LENGTH(TRIM(NEW.observaciones))>0 THEN
+		SET NEW.observaciones=UPPER(NEW.observaciones);
+	END IF;
+    
 	END //
 delimiter ;

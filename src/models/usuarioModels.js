@@ -19,6 +19,10 @@ UsuarioModel.getUsuarios=(callback)=>{
     
 };
 
+
+
+
+
 UsuarioModel.getTipoUsuarios=(callback)=>{
     if(config){
         let query = 'SELECT * FROM vMostrarTiposUsuarios';
@@ -83,8 +87,7 @@ UsuarioModel.LoginUsuario=(UsuarioData,callback)=>{
         let query ='CALL BuscarUsuarioLogin (?,?)';
         config.query(query,[UsuarioData.usuario, UsuarioData.contrasena],
             (err,res)=>{
-                if(err){
-                    throw err;                   
+                if(err){throw (err)             
                 }else{
                   callback(null,res); 
                   //resolve(JSON.parse(JSON.stringify(result)));

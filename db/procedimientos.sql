@@ -13,13 +13,13 @@ in _nombres varchar(100),
 in _apellidos varchar(100)
 )
 begin
-  IF(SELECT nombres idvotacion FROM candidato, votacion WHERE nombres = _nombres AND candidato.idvotacion = votacion.idvotacion  limit 1) THEN
-    select ('El candidato no puede pertenecer a un mismo evento 2 veces!!') as notificacion;
-   else
-     INSERT INTO candidato(puesto_candidato,partido_politico,idvotacion,cantidadVotos,nombres,apellidos)
+ if(select BuscarCandidatoXevento(_nombres, _id_votacion)is null)then
+   INSERT INTO candidato(puesto_candidato,partido_politico,idvotacion,cantidadVotos,nombres,apellidos)
     VALUES(_puesto_candidato,_partido_politico,_id_votacion,_cantidadVotos,_nombres,_apellidos);
     SELECT 'Candidato registrado correctamente' AS notificacion;
-	 end if;
+    else
+     select ('El candidato no puede pertenecer a un mismo evento 2 veces!!') as notificacion;
+    end if;
 end$$
 DELIMITER ;
 
@@ -332,4 +332,25 @@ begin
   select concat('El evento ',_descripcion,' ha sido creado correctamente') as notificacion;
 
 end$$
+DELIMITER ;
+-- -----------------------------------------------------
+-- procedure actualizar_estado_evento x hacer
+-- -----------------------------------------------------
+DROP procedure IF EXISTS actualizar_estado_evento;
+DELIMITER $$
+CREATE PROCEDURE actualizar_estado_evento(
+in _id_evento int,
+in _fechaHoraActualSistema datetime
+)
+BEGIN
+IF((SELECT idestadovotacion FROM votacion WHERE _id_evento = idvotacion limit 1) )THEN
+	IF((SELECT fechaHoraInicio FROM votacion WHERE _id_evento = idvotacion) <= _fechaHoraActualSistema AND (SELECT fechaHoraFin FROM votacion WHERE _id_evento = idvotacion)>= _fechaHoraActualSistema)THEN
+		UPDATE votacion SET idestadovotacion = 2 WHERE idvotacion = _id_evento;
+        SELECT 'El evento se modifico correctamente al estado de abierto' AS notificacion;
+	ELSEIF((SELECT fechaHoraFin FROM votacion WHERE _id_evento = idvotacion)<= _fechaHoraActualSistema)THEN
+		UPDATE votacion SET idestadovotacion = 3 WHERE idvotacion = _id_evento;
+        SELECT 'El evento se modifico correctamente al estado es cerrado' AS notificacion;
+    end if;
+end if;
+END$$
 DELIMITER ;

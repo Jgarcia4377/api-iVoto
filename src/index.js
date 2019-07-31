@@ -4,6 +4,7 @@ const exphbs = require('express-handlebars');
 const path = require('path');
 const bodyParser = require('body-parser');
 const user_routes = require('./routes/usuariosRouter');
+const evento_routes = require('./routes/eventoRouter');
 //inicializaciones
 const app= express();
 
@@ -24,14 +25,22 @@ app.set('port', process.env.PORT || 3000);
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(express.json());
-app.use(cors({origin: 'http://localhost:8100'}));
+app.use((req,res,next)=>{
+    res.header('Access-Control-Allow-Origin','*');
+    res.header('Access-Control-Allow-Headers','Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method')
+    res.header('Access-Control-Allow-Methods','GET, POST, OPTIONS, PUT, DELETE');
+    res.header('Allow','GET, POST, OPTIONS, PUT, DELETE');
+  next();
+})
+
+app.use(cors({origin: '*'}));
 
 
 //Rutas
 
 //require('./routes/usuariosRouter')(app);
 app.use(user_routes);
-
+app.use(evento_routes);
 
 //Archivos publicos
 

@@ -63,12 +63,12 @@ function getTipoUsuario(req,res){
     })
 };
 
-function getTodoTipoUsuario(req,res){
-    Usuario.todosTiposUsuarioGet((err, data)=>{
-        if(err) throw err;
-            res.send(JSON.stringify(data));   
-    })
-};
+// function getTodoTipoUsuario(req,res){
+//     Usuario.todosTiposUsuarioGet((err, data)=>{
+//         if(err) throw err;
+//             res.send(JSON.stringify(data));   
+//     })
+// };
 
 
 function getUsuarios(req,res){
@@ -132,7 +132,7 @@ module.exports = {
     getTipoUsuario,
     SaveTipoUsuario,
     removeTipoUsuario,
-    getTodoTipoUsuario,
+    //getTodoTipoUsuario,
     //getUsers,
     //updateUser,
     //uploadImage,

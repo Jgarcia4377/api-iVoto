@@ -1,3 +1,4 @@
+SET GLOBAL log_bin_trust_function_creators = 1;
 -- -----------------------------------------------------
 -- function ValidarCedula
 -- -----------------------------------------------------
@@ -131,3 +132,30 @@ BEGIN
     RETURN (SELECT tipo FROM estadoVotacion WHERE tipo = InTipo LIMIT 1);                   
 END$$
 DELIMITER ;
+
+-- -----------------------------------------------------
+-- function BuscarCandidatoXevento
+-- -----------------------------------------------------
+
+DROP function IF EXISTS BuscarCandidatoXevento;
+DELIMITER $$
+CREATE FUNCTION BuscarCandidatoXevento(InNombres VARCHAR(100), InId INT) RETURNS varchar(100) CHARSET utf8
+BEGIN 
+     RETURN (SELECT candidato.idcandidato FROM candidato, votacion WHERE candidato.idvotacion = InId AND candidato.nombres = InNombres LIMIT 1);                
+END$$
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- function BuscarEventoById
+-- -----------------------------------------------------
+
+DROP function IF EXISTS BuscarEventoById;
+DELIMITER $$
+CREATE FUNCTION BuscarEventoById(InId INT) RETURNS varchar(100) CHARSET latin1
+BEGIN 
+    RETURN (SELECT idvotacion FROM votacion WHERE idvotacion = InId LIMIT 1);                   
+END$$
+DELIMITER ;
+
+
+
