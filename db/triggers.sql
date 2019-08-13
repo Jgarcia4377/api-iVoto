@@ -103,7 +103,7 @@ delimiter ;
 
 DROP TRIGGER IF EXISTS evento;
 delimiter //
-Create trigger evento Before insert On votacion For Each Row
+Create trigger evento Before insert On evento For Each Row
 begin
 	If LENGTH(TRIM(NEW.descripcion))>0 THEN
 		SET NEW.descripcion=UPPER(NEW.descripcion);
@@ -112,5 +112,33 @@ begin
 		SET NEW.observaciones=UPPER(NEW.observaciones);
 	END IF;
     
+	END //
+delimiter ;
+
+-- --------------------------------------------------------------------------------
+-- Guardar PartidosPoliticos
+-- --------------------------------------------------------------------------------
+
+DROP TRIGGER IF EXISTS PartidosPoliticos;
+delimiter //
+Create trigger PartidosPoliticos Before insert On PartidosPoliticos For Each Row
+begin
+	If LENGTH(TRIM(NEW.nombrePartido))>0 THEN
+		SET NEW.nombrePartido=UPPER(NEW.nombrePartido);
+	END IF;    
+	END //
+delimiter ;
+
+-- --------------------------------------------------------------------------------
+-- Guardar PuestosCandidatos
+-- --------------------------------------------------------------------------------
+
+DROP TRIGGER IF EXISTS PuestosCandidatos;
+delimiter //
+Create trigger PuestosCandidatos Before insert On PuestosCandidatos For Each Row
+begin
+	If LENGTH(TRIM(NEW.tipo))>0 THEN
+		SET NEW.tipo=UPPER(NEW.tipo);
+	END IF;    
 	END //
 delimiter ;

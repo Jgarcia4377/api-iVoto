@@ -26,21 +26,94 @@ function getTodosEventos(req,res){
 
 function SaveCandidato(req,res){
     const params = req.body
-    const puestoCandidato = params.puestoCandidato
-    const partidoPolitico = params.partidoPolitico
-    const idVotacion = params.idVotacion
+    const idevento = params.idevento
+    const idpersona = params.idpersona
+    const idPuestosCandidatos = params.idPuestosCandidatos
+    const idPartidosPoliticos = params.idPartidosPoliticos
     const cantidadVotos = params.cantidadVotos
-    const nombres = params.nombres
-    const apellidos = params.apellidos
-    eventosVotacion.RegistroCandidato({puestoCandidato,partidoPolitico,idVotacion,cantidadVotos,nombres,apellidos},(err,data)=>{
+    eventosVotacion.RegistroCandidato({idevento,idpersona,idPuestosCandidatos,idPartidosPoliticos,cantidadVotos},(err,data)=>{
         console.log(data);
         if(err) throw err;
             res.send(JSON.stringify(data));
     })  
 }
 
+function getCandidatos(req,res){
+    eventosVotacion.GetCandidatos((err,data)=>{
+        if(err) throw err;
+            res.send(JSON.stringify(data));
+    });
+
+}
+
+function SavePartidoPolitico(req,res){
+    const params = req.body
+    const nombrePartido = params.nombrePartido
+    const numeroPartido = params.numeroPartido
+    eventosVotacion.RegistroPartidoPolitico({nombrePartido,numeroPartido},(err,data)=>{
+        console.log(data);
+        if(err) throw err;
+            res.send(JSON.stringify(data));
+    })  
+}
+
+function getPartidosPoliticos(req,res){
+    eventosVotacion.GetPartidosPoliticos((err,data)=>{
+        if(err) throw err;
+            res.send(JSON.stringify(data));
+    });
+
+}
+
+function SavePuestosCandidatos(req,res){
+    const params = req.body
+    const tipo = params.tipo
+    eventosVotacion.RegistroPuestosCandidatos({tipo},(err,data)=>{
+        console.log(data);
+        if(err) throw err;
+            res.send(JSON.stringify(data));
+    })  
+}
+
+
+function getPuestosCandidatos(req,res){
+    eventosVotacion.GetPuestosCandidatos((err,data)=>{
+        if(err) throw err;
+            res.send(JSON.stringify(data));
+    });
+
+}
+
+function getPersonas(req,res){
+    eventosVotacion.GetPersonas((err,data)=>{
+        if(err) throw err;
+            res.send(JSON.stringify(data));
+    });
+
+}
+
+function UpdateEstadoEvento(req,res){
+    const params = req.body
+    const idevento = params.idevento
+    const FHActualSistema = params.FHActualSistema
+    eventosVotacion.actualizaEstadoEvento({idevento,FHActualSistema},(err,data)=>{
+        console.log(data);
+        if(err) throw err;
+            res.send(JSON.stringify(data));
+    })  
+}
+
+
 module.exports = {
     SaveEventoVotacion,
     getTodosEventos,
-    SaveCandidato
+    SaveCandidato,
+    getCandidatos,
+    SavePartidoPolitico,
+    getPartidosPoliticos,
+    SavePuestosCandidatos,
+    getPuestosCandidatos,
+    getPersonas,
+    UpdateEstadoEvento
+
 }

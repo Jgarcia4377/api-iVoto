@@ -1,16 +1,53 @@
+-- ---------------------------------
+-- View vMostrarPersonas
+-- -----------------------------------------------------
+DROP VIEW IF EXISTS vMostrarPersonas ;
+CREATE OR REPLACE VIEW vMostrarPersonas AS 
+    SELECT idpersona AS idpersona,
+		   concat(persona.nombres,' ',persona.apellido_p,' ',persona.apellido_m) AS nombres
+           from persona ORDER BY nombres ASC;
+
+-- -----------------------------------------------------
+-- vMostrarCandidatos
+-- -----------------------------------------------------
+DROP VIEW IF EXISTS vMostrarCandidatos ;
+CREATE OR REPLACE VIEW vMostrarCandidatos AS 
+    SELECT idcandidato AS idcandidato,
+           evento.idevento AS idEvento,
+		   concat(evento.descripcion,' ',DATE_FORMAT(fechaHoraInicio, "%d-%m-%Y")) AS nombreEvento,
+           evento.observaciones AS observacionesEvento,
+           estadoVotacion.tipo AS estadoEvento,
+          
+           usuario.idusuario AS idUsuario,
+             CAST(AES_DECRYPT(usuario.usuario,'iVOTO')AS CHAR(50)) AS usuario,
+              persona.idpersona AS idpersona,
+		   concat(persona.nombres,' ',persona.apellido_p,' ',persona.apellido_m) AS nombres,
+           PartidosPoliticos.nombrePartido AS partidoPolitico,
+           PartidosPoliticos.numeroPartido AS numeroPartidoPolitico,
+           PuestosCandidatos.idPuestosCandidatos AS idPuestoCandidato,
+           PuestosCandidatos.tipo AS puestoCandidato
+           from ((((((candidato join persona) join evento) join PuestosCandidatos) join PartidosPoliticos) join estadoVotacion ) join usuario)
+           where ((persona.idpersona = candidato.idpersona) and 
+					(persona.idpersona = usuario.persona_idpersona)and
+				  (candidato.idevento = evento.idevento) and 
+                  (evento.idestadoVotacion = estadoVotacion.idestadoVotacion) and
+                  (candidato.idPartidosPoliticos = PartidosPoliticos.idPartidosPoliticos) and
+                   (candidato.idPuestosCandidatos = PuestosCandidatos.idPuestosCandidatos)) ORDER BY idevento;
+
+
 -- -----------------------------------------------------
 -- vMostrarEventos
 -- -----------------------------------------------------
 DROP VIEW IF EXISTS vMostrarEventos ;
 CREATE OR REPLACE VIEW vMostrarEventos AS 
-    SELECT idvotacion AS idEvento,
+    SELECT idevento AS idEvento,
 		   descripcion AS descripcion,
            observaciones AS observaciones,
            DATE_FORMAT(fechaHoraInicio, "%d-%m-%Y") AS FHinicio,
             DATE_FORMAT(fechaHoraFin, "%d-%m-%Y") AS FHfin,
-           estadovotacion.tipo AS estado
-           from votacion join estadovotacion 
-           where votacion.idestadoVotacion = estadovotacion.idestadoVotacion;
+           estadoVotacion.tipo AS estado
+		  from evento join estadoVotacion
+           where evento.idestadoVotacion = estadoVotacion.idestadoVotacion;
 
 
 -- -----------------------------------------------------
@@ -45,4 +82,23 @@ CREATE OR REPLACE VIEW vMostrarUsuarios AS
 				  (tipo_usuario.idtipo = usuario.tipo_usuario_id) and 
                   (estado_usuario.idestado = usuario.estado_usuario_id) and
                   (tipo_usuario.tipo = "ESTUDIANTE"));
+
+-- -----------------------------------------------------
+-- vMostrarPartidosPoliticos
+-- -----------------------------------------------------
+DROP VIEW IF EXISTS vMostrarPartidosPoliticos ;
+CREATE OR REPLACE VIEW vMostrarPartidosPoliticos AS 
+    SELECT idPartidosPoliticos AS idPartidosPoliticos,
+		   nombrePartido AS nombrePartido,
+           numeroPartido AS numeroPartido
+           from PartidosPoliticos order by nombrePartido ASC;
+
+-- -----------------------------------------------------
+-- vMostrarPuestosCandidatos
+-- -----------------------------------------------------
+DROP VIEW IF EXISTS vMostrarPuestosCandidatos ;
+CREATE OR REPLACE VIEW vMostrarPuestosCandidatos AS 
+    SELECT idPuestosCandidatos AS idPuestosCandidatos,
+		   tipo AS tipo
+           from PuestosCandidatos order by tipo ASC;
 

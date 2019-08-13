@@ -81,14 +81,14 @@ DELIMITER ;
 
 
 -- -----------------------------------------------------
--- function BuscarTipoPuestos
+-- function BuscarPuestosCandidatos
 -- -----------------------------------------------------
 
-DROP function IF EXISTS BuscarTipoPuestos;
+DROP function IF EXISTS BuscarPuestosCandidatos;
 DELIMITER $$
-CREATE FUNCTION BuscarTipoPuestos(InTipo VARCHAR(45)) RETURNS varchar(90) CHARSET utf8
+CREATE FUNCTION BuscarPuestosCandidatos(InTipo VARCHAR(45)) RETURNS varchar(90) CHARSET utf8
 BEGIN 
-    RETURN (SELECT tipo FROM tipo_puestos WHERE tipo = InTipo LIMIT 1);                   
+    RETURN (SELECT tipo FROM puestoscandidatos WHERE tipo = InTipo LIMIT 1);                   
 END$$
 DELIMITER ;
 
@@ -139,9 +139,9 @@ DELIMITER ;
 
 DROP function IF EXISTS BuscarCandidatoXevento;
 DELIMITER $$
-CREATE FUNCTION BuscarCandidatoXevento(InNombres VARCHAR(100), InId INT) RETURNS varchar(100) CHARSET utf8
+CREATE FUNCTION BuscarCandidatoXevento(InId INT, InIdEvento INT) RETURNS varchar(100) CHARSET latin1
 BEGIN 
-     RETURN (SELECT candidato.idcandidato FROM candidato, votacion WHERE candidato.idvotacion = InId AND candidato.nombres = InNombres LIMIT 1);                
+     RETURN (SELECT candidato.idcandidato FROM candidato WHERE candidato.idpersona = InId AND idevento = InIdEvento LIMIT 1); -- AND candidato.nombres = InNombres LIMIT 1);                
 END$$
 DELIMITER ;
 
@@ -153,9 +153,35 @@ DROP function IF EXISTS BuscarEventoById;
 DELIMITER $$
 CREATE FUNCTION BuscarEventoById(InId INT) RETURNS varchar(100) CHARSET latin1
 BEGIN 
-    RETURN (SELECT idvotacion FROM votacion WHERE idvotacion = InId LIMIT 1);                   
+    RETURN (SELECT idevento FROM evento WHERE idevento = InId LIMIT 1);                   
 END$$
 DELIMITER ;
+
+-- -----------------------------------------------------
+-- function BuscarPartidosPoliticos
+-- -----------------------------------------------------
+
+DROP function IF EXISTS BuscarPartidosPoliticos;
+DELIMITER $$
+CREATE FUNCTION BuscarPartidosPoliticos(InNombrePartido VARCHAR(100)) RETURNS varchar(90) CHARSET utf8
+BEGIN 
+    RETURN (SELECT nombrePartido FROM partidospoliticos WHERE nombrePartido = InNombrePartido LIMIT 1);                   
+END$$
+DELIMITER ;
+
+
+-- -----------------------------------------------------
+-- function BuscarVotanteXevento
+-- -----------------------------------------------------
+
+DROP function IF EXISTS BuscarVotanteXevento;
+DELIMITER $$
+CREATE FUNCTION BuscarVotanteXevento(InId INT) RETURNS varchar(100) CHARSET utf8
+BEGIN 
+     RETURN (SELECT idusuario FROM votodetalle WHERE idusuario = InId LIMIT 1); -- AND candidato.nombres = InNombres LIMIT 1);                
+END$$
+DELIMITER ;
+
 
 
 

@@ -5,20 +5,19 @@ DROP procedure IF EXISTS registrar_candidato;
 DELIMITER $$
 CREATE PROCEDURE registrar_candidato(
 
-in _puesto_candidato varchar(100),
-in _partido_politico varchar(100),
-in _id_votacion INT,
-in _cantidadVotos INT,
-in _nombres varchar(100),
-in _apellidos varchar(100)
+in _id_evento INT,
+in _id_persona INT,
+in _id_puestos_candidatos INT,
+in _id_partidos_politicos INT,
+in _cantidad_votos INT
 )
 begin
- if(select BuscarCandidatoXevento(_nombres, _id_votacion)is null)then
-   INSERT INTO candidato(puesto_candidato,partido_politico,idvotacion,cantidadVotos,nombres,apellidos)
-    VALUES(_puesto_candidato,_partido_politico,_id_votacion,_cantidadVotos,_nombres,_apellidos);
-    SELECT 'Candidato registrado correctamente' AS notificacion;
-    else
+ if(select BuscarCandidatoXevento(_id_persona, _id_evento)is null)then
      select ('El candidato no puede pertenecer a un mismo evento 2 veces!!') as notificacion;
+    else
+     INSERT INTO candidato(idevento,idpersona,idPuestosCandidatos,idPartidosPoliticos,cantidadVotos)
+    VALUES(_id_evento,_id_persona,_id_puestos_candidatos,_id_partidos_politicos,_cantidad_votos);
+    SELECT 'Candidato registrado correctamente' AS notificacion;
     end if;
 end$$
 DELIMITER ;
@@ -239,23 +238,7 @@ BEGIN
   end if;
 END$$
 DELIMITER ;
--- -----------------------------------------------------
--- procedure registrar_tipo_puestos
--- -----------------------------------------------------
 
-DROP procedure IF EXISTS registrar_tipo_puestos;
-DELIMITER $$
-CREATE PROCEDURE registrar_tipo_puestos(
-in _tipo varchar(45))
-begin
-  if(select BuscarTipoPuestos(_tipo)is null)then
-    insert into tipo_puestos values(NULL,_tipo);
-    select concat('El puesto "',_tipo,'" se registro correctamente') as notificacion;
-    else
-     select concat('El puesto "',_tipo,'" ya existe') as notificacion;
-    end if;
-end$$
-DELIMITER ;
 
 -- -----------------------------------------------------
 -- procedure modificar_tipo_usuario
@@ -313,12 +296,12 @@ DELIMITER ;
 
 
 -- -----------------------------------------------------
--- procedure RegistrarEventoVotacion
+-- procedure RegistrarEvento
 -- -----------------------------------------------------
 
-DROP procedure IF EXISTS RegistrarEventoVotacion;
+DROP procedure IF EXISTS RegistrarEvento;
 DELIMITER $$
-CREATE PROCEDURE RegistrarEventoVotacion(
+CREATE PROCEDURE RegistrarEvento(
 IN _descripcion VARCHAR(100),
 IN _observaciones VARCHAR(200),
 IN _fechahorainicio DATETIME,
@@ -327,14 +310,14 @@ IN _idestadovotacion INT
 )
 begin 
  
-   INSERT INTO votacion(descripcion,observaciones,fechaHoraInicio,fechaHoraFin,idestadovotacion) VALUES
+   INSERT INTO evento(descripcion,observaciones,fechaHoraInicio,fechaHoraFin,idestadovotacion) VALUES
     (_descripcion,_observaciones,_fechahorainicio,_fechahorafin,_idestadovotacion);
   select concat('El evento ',_descripcion,' ha sido creado correctamente') as notificacion;
 
 end$$
 DELIMITER ;
 -- -----------------------------------------------------
--- procedure actualizar_estado_evento x hacer
+-- procedure actualizar_estado_evento
 -- -----------------------------------------------------
 DROP procedure IF EXISTS actualizar_estado_evento;
 DELIMITER $$
@@ -343,14 +326,87 @@ in _id_evento int,
 in _fechaHoraActualSistema datetime
 )
 BEGIN
-IF((SELECT idestadovotacion FROM votacion WHERE _id_evento = idvotacion limit 1) )THEN
-	IF((SELECT fechaHoraInicio FROM votacion WHERE _id_evento = idvotacion) <= _fechaHoraActualSistema AND (SELECT fechaHoraFin FROM votacion WHERE _id_evento = idvotacion)>= _fechaHoraActualSistema)THEN
-		UPDATE votacion SET idestadovotacion = 2 WHERE idvotacion = _id_evento;
-        SELECT 'El evento se modifico correctamente al estado de abierto' AS notificacion;
-	ELSEIF((SELECT fechaHoraFin FROM votacion WHERE _id_evento = idvotacion)<= _fechaHoraActualSistema)THEN
-		UPDATE votacion SET idestadovotacion = 3 WHERE idvotacion = _id_evento;
-        SELECT 'El evento se modifico correctamente al estado es cerrado' AS notificacion;
+IF((SELECT idestadovotacion FROM evento WHERE idevento = _id_evento  limit 1) )THEN
+	IF((SELECT fechaHoraInicio FROM evento WHERE idevento = _id_evento ) <= _fechaHoraActualSistema AND (SELECT fechaHoraFin FROM evento WHERE idevento= _id_evento)>= _fechaHoraActualSistema)THEN
+		UPDATE evento SET idestadovotacion = 2 WHERE idevento = _id_evento;
+        SELECT 'El evento se modifico correctamente al estado de abierto' AS notificacion,
+        evento.idestadovotacion AS idestadoVotacion,
+        estadovotacion.tipo AS tipo
+        FROM evento,estadovotacion WHERE evento.idestadoVotacion = estadovotacion.idestadoVotacion AND evento.idevento = _id_evento;
+	ELSEIF((SELECT fechaHoraFin FROM evento WHERE _id_evento = idevento)<= _fechaHoraActualSistema)THEN
+		UPDATE evento SET idestadovotacion = 3 WHERE idevento = _id_evento;
+        SELECT 'El evento se modifico correctamente al estado es cerrado' AS notificacion,
+        evento.idestadovotacion AS idestadoVotacion,
+        estadovotacion.tipo AS tipo
+        FROM evento,estadovotacion WHERE evento.idestadoVotacion = estadovotacion.idestadoVotacion AND evento.idevento = _id_evento;
     end if;
 end if;
+END$$
+DELIMITER ;
+
+
+-- -----------------------------------------------------
+-- procedure registrar_partidos_politicos
+-- -----------------------------------------------------
+
+DROP procedure IF EXISTS registrar_partidos_politicos;
+DELIMITER $$
+CREATE PROCEDURE registrar_partidos_politicos(
+in _nombre_Partido varchar(100),
+in _numero_Partido varchar(45))
+begin
+  if(select BuscarPartidosPoliticos(_nombre_Partido)is null)then
+    insert into partidospoliticos values(NULL,_nombre_Partido,_numero_Partido);
+    select ("El Partido Politico se registro correctamente") as notificacion;
+    else
+    select concat('El Partido Politico "',_nombre_Partido,'" ya existe') as notificacion;
+    end if;
+end$$
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure registrar_puestos_candidatos
+-- -----------------------------------------------------
+
+DROP procedure IF EXISTS registrar_puestos_candidatos;
+DELIMITER $$
+CREATE PROCEDURE registrar_puestos_candidatos(
+in _tipo varchar(45))
+begin
+  if(select BuscarPuestosCandidatos(_tipo)is null)then
+    insert into puestoscandidatos values(NULL,_tipo);
+    select concat('El puesto "',_tipo,'" se registro correctamente') as notificacion;
+    else
+     select concat('El puesto "',_tipo,'" ya existe') as notificacion;
+    end if;
+end$$
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure RegistrarVotoDetalle
+-- -----------------------------------------------------
+
+DROP procedure IF EXISTS RegistrarVotoDetalle;
+DELIMITER $$
+CREATE PROCEDURE RegistrarVotoDetalle(
+IN _fechaHoraVoto DATETIME,
+IN _idEvento INT,
+IN _idUsuario INT,
+IN _idCandidato INT,
+IN _idPuestoCandidato INT
+)
+BEGIN
+  
+if((SELECT idusuario FROM votodetalle WHERE idusuario = _idUsuario AND idPuestoCandidato = _idPuestoCandidato LIMIT 1))then
+		select ('No puede votar 2 veces por el mismo puesto!!') as notificacion;
+	else
+         INSERT INTO votodetalle(fechaHoraVoto,idevento,idUsuario,idcandidato,idPuestoCandidato)
+		VALUES(_fechaHoraVoto,_idEvento,_idUsuario,_idCandidato, _idPuestoCandidato);
+        SELECT candidato.idcandidato as idcandidato,
+        cantidadVotos as cantidadVotos
+		FROM candidato, votodetalle WHERE votodetalle.idcandidato = candidato.idcandidato;
+        UPDATE candidato SET cantidadVotos = cantidadVotos+1 WHERE idcandidato=_idCandidato;
+		SELECT 'Voto registrado correctamente' AS notificacion;
+	end if;
 END$$
 DELIMITER ;
