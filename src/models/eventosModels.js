@@ -132,7 +132,21 @@ eventosVotacionModel.actualizaEstadoEvento=(data, callback)=>{
     }
 }
 
-
+eventosVotacionModel.mostrarResultadoGraficoByIdEvento=(data, callback)=>{
+    if(config){
+        let query = 'CALL BuscarEventoGrafico (?)'
+        config.query(query, [data.idEvento],
+            (err, res)=>{
+                if(err){
+                    throw (err);
+                }else{
+                    callback(null,res)
+                }
+            }
+        )
+    }
+   
+};
 
 
 module.exports = eventosVotacionModel;

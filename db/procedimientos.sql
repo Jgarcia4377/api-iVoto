@@ -194,6 +194,7 @@ if(select BuscarUsuarioLogin(_usuario, _contrasena )is null)then
     SELECT ('Iniciando Sesión') as notificacion,usuario.idusuario,
     CAST(AES_DECRYPT(usuario,'iVOTO')AS CHAR(50)) AS usuario,
     CONCAT(apellido_p,' ',apellido_m,' ',nombres) AS nombres,
+    persona.cedula AS cedula,
         tipo_usuario.idtipo AS tipo_usuario,
         estado_usuario.idestado AS estado
         FROM persona,usuario,estado_usuario,tipo_usuario WHERE
@@ -336,6 +337,8 @@ IF((SELECT idestadovotacion FROM evento WHERE idevento = _id_evento  limit 1) )T
 	ELSEIF((SELECT fechaHoraFin FROM evento WHERE _id_evento = idevento)<= _fechaHoraActualSistema)THEN
 		UPDATE evento SET idestadovotacion = 3 WHERE idevento = _id_evento;
         SELECT 'El evento se modifico correctamente al estado es cerrado' AS notificacion,
+        evento.descripcion AS nombreEvento,
+        evento.fechaHoraInicio AS fechaInicio,
         evento.idestadovotacion AS idestadoVotacion,
         estadovotacion.tipo AS tipo
         FROM evento,estadovotacion WHERE evento.idestadoVotacion = estadovotacion.idestadoVotacion AND evento.idevento = _id_evento;
@@ -396,13 +399,15 @@ IN _idCandidato INT,
 IN _idPuestoCandidato INT
 )
 BEGIN
-  
+
 if((SELECT idusuario FROM votodetalle WHERE idusuario = _idUsuario AND idPuestoCandidato = _idPuestoCandidato LIMIT 1))then
 		select ('No puede votar 2 veces por el mismo puesto!!') as notificacion;
 	else
-         INSERT INTO votodetalle(fechaHoraVoto,idevento,idUsuario,idcandidato,idPuestoCandidato)
-		VALUES(_fechaHoraVoto,_idEvento,_idUsuario,_idCandidato, _idPuestoCandidato);
-        SELECT candidato.idcandidato as idcandidato,
+         INSERT INTO votodetalle(fechaHoraVoto,idevento,idusuario,idcandidato,idPuestoCandidato)
+		VALUES(_fechaHoraVoto, _idEvento,_idUsuario,_idCandidato, _idPuestoCandidato);
+        -- VALUES(_fechaHoraVoto, AES_ENCRYPT(_idEvento,'iVOTO'),AES_ENCRYPT(_idUsuario,'iVOTO'),AES_ENCRYPT(_idCandidato,'iVOTO'),AES_ENCRYPT( _idPuestoCandidato,'iVOTO'));
+        
+        SELECT candidato.idcandidato AS idcandidato,
         cantidadVotos as cantidadVotos
 		FROM candidato, votodetalle WHERE votodetalle.idcandidato = candidato.idcandidato;
         UPDATE candidato SET cantidadVotos = cantidadVotos+1 WHERE idcandidato=_idCandidato;
@@ -410,3 +415,31 @@ if((SELECT idusuario FROM votodetalle WHERE idusuario = _idUsuario AND idPuestoC
 	end if;
 END$$
 DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure BuscarEventoGrafico
+-- -----------------------------------------------------
+
+DROP procedure IF EXISTS BuscarEventoGrafico;
+DELIMITER $$
+CREATE PROCEDURE BuscarEventoGrafico(
+IN _idEvento int
+)
+BEGIN
+ if((SELECT idcandidato FROM candidato WHERE idevento = _idEvento LIMIT 1))then
+	select CONCAT(apellido_p,' ',apellido_m,' ',nombres) AS nombres,        
+   puestoscandidatos.tipo AS puesto,
+   candidato.cantidadVotos as cantidadVotos,
+   evento.descripcion as descripcion,
+   partidospoliticos.nombrePartido AS partidoPolitico
+    FROM persona,candidato,puestoscandidatos,evento,partidospoliticos WHERE
+    candidato.idevento = evento.idevento AND 
+    candidato.idevento = _idEvento AND
+   candidato.idpersona = persona.idpersona AND
+   candidato.idPartidosPoliticos = partidospoliticos.idPartidosPoliticos AND
+   candidato.idPuestosCandidatos = puestoscandidatos.idPuestosCandidatos;
+   end if;
+END$$
+DELIMITER ;
+
+

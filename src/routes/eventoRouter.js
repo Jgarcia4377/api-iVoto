@@ -18,5 +18,8 @@ api.post('/registro-partido-politico', EventoVotacionController.SavePartidoPolit
 api.get('/registro-partido-politico', EventoVotacionController.getPartidosPoliticos);
 api.post('/registro-puestos', EventoVotacionController.SavePuestosCandidatos);
 api.get('/registro-puestos', EventoVotacionController.getPuestosCandidatos);
+api.post('/resultados', EventoVotacionController.MostrarGraficoByID);
 module.exports = api;
+
+
 

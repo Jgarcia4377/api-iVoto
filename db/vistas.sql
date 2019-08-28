@@ -17,10 +17,10 @@ CREATE OR REPLACE VIEW vMostrarCandidatos AS
 		   concat(evento.descripcion,' ',DATE_FORMAT(fechaHoraInicio, "%d-%m-%Y")) AS nombreEvento,
            evento.observaciones AS observacionesEvento,
            estadoVotacion.tipo AS estadoEvento,
-          
            usuario.idusuario AS idUsuario,
-             CAST(AES_DECRYPT(usuario.usuario,'iVOTO')AS CHAR(50)) AS usuario,
-              persona.idpersona AS idpersona,
+           candidato.cantidadVotos AS votos,
+		   CAST(AES_DECRYPT(usuario.usuario,'iVOTO')AS CHAR(50)) AS usuario,
+           persona.idpersona AS idpersona,
 		   concat(persona.nombres,' ',persona.apellido_p,' ',persona.apellido_m) AS nombres,
            PartidosPoliticos.nombrePartido AS partidoPolitico,
            PartidosPoliticos.numeroPartido AS numeroPartidoPolitico,
@@ -32,7 +32,7 @@ CREATE OR REPLACE VIEW vMostrarCandidatos AS
 				  (candidato.idevento = evento.idevento) and 
                   (evento.idestadoVotacion = estadoVotacion.idestadoVotacion) and
                   (candidato.idPartidosPoliticos = PartidosPoliticos.idPartidosPoliticos) and
-                   (candidato.idPuestosCandidatos = PuestosCandidatos.idPuestosCandidatos)) ORDER BY idevento;
+                   (candidato.idPuestosCandidatos = PuestosCandidatos.idPuestosCandidatos)) ORDER BY puestoCandidato;
 
 
 -- -----------------------------------------------------

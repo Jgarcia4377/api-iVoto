@@ -43,7 +43,6 @@ function getCandidatos(req,res){
         if(err) throw err;
             res.send(JSON.stringify(data));
     });
-
 }
 
 function SavePartidoPolitico(req,res){
@@ -62,7 +61,6 @@ function getPartidosPoliticos(req,res){
         if(err) throw err;
             res.send(JSON.stringify(data));
     });
-
 }
 
 function SavePuestosCandidatos(req,res){
@@ -81,7 +79,6 @@ function getPuestosCandidatos(req,res){
         if(err) throw err;
             res.send(JSON.stringify(data));
     });
-
 }
 
 function getPersonas(req,res){
@@ -104,6 +101,18 @@ function UpdateEstadoEvento(req,res){
 }
 
 
+function MostrarGraficoByID(req,res){
+    const params = req.body
+    const idEvento = params.idEvento
+    eventosVotacion.mostrarResultadoGraficoByIdEvento({idEvento},(err,data)=>{
+        if(err) throw err;
+        res.send(JSON.stringify(data));
+});
+
+}
+
+
+
 module.exports = {
     SaveEventoVotacion,
     getTodosEventos,
@@ -114,6 +123,6 @@ module.exports = {
     SavePuestosCandidatos,
     getPuestosCandidatos,
     getPersonas,
-    UpdateEstadoEvento
-
+    UpdateEstadoEvento,
+    MostrarGraficoByID
 }
